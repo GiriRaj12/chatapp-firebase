@@ -1,13 +1,32 @@
 import firebase from 'firebase';
 
-let db = firebase.firestore();
+function getDB() {
+    return firebase.firestore();
+}
 
-function saveUser(user){
-    if(user){
-        db.collection('user').add({
-            id:user.uid,
-            email : user.email,
-            userName : user.displayName,
+export function saveUser(user) {
+    let db = getDB();
+
+    console.log(user);
+
+    let addUser = {
+        id: user.uid,
+        email: user.email,
+        userName: user.displayName,
+        imageUrl: user.photoURL
+    }
+
+    console.log(addUser);
+
+    if (user) {
+        db.collection('user').doc(user.uid).set(addUser).then(e => {
+            console.log(e);
+            window.location.replace('/Chat');
         })
     }
+}
+
+export function getUsers() {
+    let db = getDB();
+    return db.collection('user').get();
 }

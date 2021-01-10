@@ -1,21 +1,21 @@
 import React, { useEffect } from 'react';
 import firebase from 'firebase';
 
-function LandingPage(){
+function LandingPage() {
 
-useEffect(() =>{
-    firebase
-    .auth().onAuthStateChanged(user =>{
-        if(user){
-            window.location.replace('/Chat')
-        }
-        else{
-            window.location.replace('/Login')
-        }
-    })
-});
+    useEffect(() => {
+        firebase
+            .auth().onAuthStateChanged(user => {
+                if (user) {
+                    window.location.replace('/Chat')
+                }
+                else {
+                    window.location.replace('/Login')
+                }
+            })
+    });
 
-    return(
+    return (
         <div>
             Loading ...
         </div>
