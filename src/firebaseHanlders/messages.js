@@ -89,20 +89,29 @@ export function getChatRoomMessages(id) {
 }
 
 export function saveChatRoomMessage(obj, id) {
+    console.log(obj, id);
     firebase.firestore().collection('messages').doc(id)
         .get()
         .then(function (doc) {
             if (doc.exists) {
                 let messages = doc.data();
-                messages.messages = messages.messages.push(obj);
-                firebase.firestore().collection
+                let messageArray = messages.messages.push(obj);
+                firebase.firestore().collection('messages')
                     .doc(id)
                     .update({
-
+                        'messages': messageArray
                     })
+                    .then((e) => console.log(e));
             }
             else {
+                let messageObj = {
+                    userId: id,
+                    messages: [obj]
+                }
 
+                firebase.firestore().collection('messages')
+                    .doc(id)
+                    .set(messageObj);
             }
         })
 }

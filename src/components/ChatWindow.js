@@ -64,16 +64,18 @@ function ChatWindow() {
     }
 
     let handleUserSelect = (id) => {
+        console.log(id);
         let thisUser = null;
         for (let currentUser of searchUserList) {
-            if (currentUser.uid === id) {
+            if (currentUser.id === id) {
                 thisUser = currentUser;
             }
         }
+        console.log(thisUser);
         if (thisUser && user) {
             saveInitiatedMessages(user.uid, thisUser);
             setSearchUserList([]);
-            setSearchTerm(null);
+            setSearchTerm('');
             getInitiatesMessagesForChatWindow(user);
         }
     }
