@@ -1,4 +1,39 @@
 .message-body{
-    background-color: rgb(210, 248, 239);
+    display: flex;
     border-radius: 6px;
+    position: relative;
+}
+
+.message-conatiner{
+    width: 600px;
+    border-radius: 10px;
+    margin: 10px;
+    display: flex;
+    background-color: aliceblue;
+}
+
+.right{
+    justify-content: flex-end !important;
+}
+
+.left{
+    justify-content: flex-start !important; 
+}
+
+.right-div{
+    bottom: 0;
+    margin-right: 10px;
+}
+
+.left-div{
+    bottom: 0;
+    margin-left: 10px;
+}
+
+.chat-by-depth-div{
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    transform: rotate(45deg);
+    background-color: aliceblue;
 }

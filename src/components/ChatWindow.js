@@ -28,8 +28,9 @@ function ChatWindow() {
                 getInitiatesMessagesForChatWindow(currentUser);
                 getSearchUserList();
             }
-            else
+            else {
                 window.location.replace('/Login');
+            }
         });
 
     }, []);
@@ -64,14 +65,12 @@ function ChatWindow() {
     }
 
     let handleUserSelect = (id) => {
-        console.log(id);
         let thisUser = null;
         for (let currentUser of searchUserList) {
             if (currentUser.id === id) {
                 thisUser = currentUser;
             }
         }
-        console.log(thisUser);
         if (thisUser && user) {
             saveInitiatedMessages(user.uid, thisUser);
             setSearchUserList([]);
@@ -81,17 +80,18 @@ function ChatWindow() {
     }
 
     let setTargetUserId = (id) => {
-        console.log(id);
-        let thisUser = null;
-        console.log(searchUserList);
+        let selectedUser = null;
         for (let currentUser of searchUserList) {
             if (currentUser.id === id) {
-                thisUser = currentUser;
+                selectedUser = Object.assign({}, currentUser);
+                break;
             }
         }
-        if (thisUser) {
-            console.log(thisUser);
-            setTargetUser(thisUser);
+
+        if (selectedUser) {
+            console.log(selectedUser);
+            setTargetUser(selectedUser);
+            console.log(targetUser);
         }
     }
 
@@ -155,8 +155,8 @@ function ChatWindow() {
                     </div>
                 </Drawer>
             </div>
-            <div>
-                <ChatRoom user={user} targetUser={targetUser} ></ChatRoom>
+            <div style={{ position: 'fixed', height: '80%', right: '10', width: '90%' }}>
+                {(user && targetUser) ? <ChatRoom user={user} targetUser={targetUser} ></ChatRoom> : ''};
             </div>
         </div >
     )
@@ -208,6 +208,7 @@ function getChatItemsView(chatUsers, setTargetUser) {
     }
 
     let handleClickEvent = (id) => {
+        console.log(id);
         setTargetUser(id);
     }
 

@@ -95,7 +95,9 @@ export function saveChatRoomMessage(obj, id) {
         .then(function (doc) {
             if (doc.exists) {
                 let messages = doc.data();
-                let messageArray = messages.messages.push(obj);
+                console.log(messages);
+                messages.messages.push(obj);
+                let messageArray = messages.messages;
                 firebase.firestore().collection('messages')
                     .doc(id)
                     .update({

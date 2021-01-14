@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Button, Card, CardContent, Typography } from '@material-ui/core';
 import firebase from 'firebase';
 import './styles/LoginPage.css';
@@ -18,6 +18,18 @@ function LoginPage() {
                 console.log(err);
             });
     }
+
+    useEffect(() => {
+        firebase
+            .auth().onAuthStateChanged(user => {
+                if (user) {
+                    window.location.replace('/Chat')
+                }
+                else {
+                    window.location.replace('/Login')
+                }
+            })
+    }, [])
 
     return (
         <div className='sign-in-view'>
