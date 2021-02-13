@@ -7,6 +7,7 @@ import { SearchRounded } from '@material-ui/icons';
 import './styles/ChatWindow.css';
 import ChatRoom from './ChatRoom';
 import { saveInitiatedMessages, getInitiatedMessages } from '../firebaseHanlders/messages';
+import { useHistory } from 'react-router-dom';
 
 function ChatWindow() {
     let [user, setUser] = useState(null);
@@ -19,6 +20,8 @@ function ChatWindow() {
 
     let [targetUser, setTargetUser] = useState(null);
 
+    let history = useHistory();
+
 
 
     useEffect(() => {
@@ -29,10 +32,9 @@ function ChatWindow() {
                 getSearchUserList();
             }
             else {
-                window.location.replace('/Login');
+                history.push("/Login");
             }
         });
-
     }, []);
 
     let getInitiatesMessagesForChatWindow = (currentUser) => {
@@ -42,26 +44,24 @@ function ChatWindow() {
             getInitiatedMessages(currentUser.uid)
                 .get()
                 .then(function (doc) {
-                    console.log(doc);
                     if (doc.exists) {
-                        setChatUsers(doc.data());
+                        let data = doc.data();
+                        setChatUsers(data.initiatedList);
                     }
-                })
+                });
         }
     }
 
     let getSearchUserList = () => {
         let userPromise = getUsers();
-        userPromise.then(function (querySnapshot) {
+        userPromise.then((querySnapshot) => {
             let users = [];
             querySnapshot.forEach(function (doc) {
                 let user = doc.data();
-                console.log(user);
                 users.push(user);
             });
             setSearchUserList(users);
         })
-
     }
 
     let handleUserSelect = (id) => {
@@ -71,28 +71,42 @@ function ChatWindow() {
                 thisUser = currentUser;
             }
         }
-        if (thisUser && user) {
+
+        if (thisUser) {
             saveInitiatedMessages(user.uid, thisUser);
+            let chats = chatUsers;
+            let toAddChatUsers = true;
+            for (let chatUser in chatUsers) {
+                if (chatUser.id == thisUser.id) {
+                    toAddChatUsers = false;
+                }
+            }
+
+            if (toAddChatUsers) {
+                chats.push(thisUser);
+                setChatUsers(chats);
+            }
             setSearchUserList([]);
             setSearchTerm('');
-            getInitiatesMessagesForChatWindow(user);
         }
     }
 
     let setTargetUserId = (id) => {
         let selectedUser = null;
-        for (let currentUser of searchUserList) {
+        for (let currentUser of chatUsers) {
             if (currentUser.id === id) {
                 selectedUser = Object.assign({}, currentUser);
+                setTargetUser(selectedUser);
                 break;
             }
         }
+    }
 
-        if (selectedUser) {
-            console.log(selectedUser);
-            setTargetUser(selectedUser);
-            console.log(targetUser);
+    let chatRoom = (user, targetUser) => {
+        if (user && targetUser) {
+            return <ChatRoom currentUser={user} targetUser={targetUser} ></ChatRoom>
         }
+        return;
     }
 
     return (
@@ -151,12 +165,17 @@ function ChatWindow() {
                         <Button
                             variant='contained'
                             color='primary'
+                            onClick={() => {
+                                firebase.auth().signOut().then(() => {
+                                    history.push("/Login");
+                                });
+                            }}
                         >Logout</Button>
                     </div>
                 </Drawer>
             </div>
             <div style={{ position: 'fixed', height: '80%', right: '10', width: '90%' }}>
-                {(user && targetUser) ? <ChatRoom user={user} targetUser={targetUser} ></ChatRoom> : ''};
+                {chatRoom(user, targetUser)};
             </div>
         </div >
     )
@@ -171,18 +190,11 @@ function getUsersListView(searchUserList = [], searchTerm, callback) {
         return '';
     }
 
-    let listItemStyle = {
-        cursor: 'pointer',
-        marginBottom: '10px',
-        '&:hover': {
-            backgroundColor: 'rgb(128, 231, 214)'
-        }
-    }
 
     let getSearchUserList = () => {
         return searchUserList.map(user => {
             if (searchTerm && user.userName.includes(searchTerm)) {
-                return <ListItem id={user.id} key={user.id} style={listItemStyle}>{user.userName}</ListItem>
+                return <ListItem id={user.id} key={user.id}>{user.userName}</ListItem>
             }
             else {
                 return '';
@@ -203,19 +215,19 @@ function getUsersListView(searchUserList = [], searchTerm, callback) {
 }
 
 function getChatItemsView(chatUsers, setTargetUser) {
+
+    console.log("Chat users", chatUsers);
+
     if (!chatUsers) {
         return;
     }
 
     let handleClickEvent = (id) => {
-        console.log(id);
         setTargetUser(id);
     }
 
-    let arr = chatUsers.initiatedList ? chatUsers.initiatedList : [];
-
     return <List>
-        {arr.map(e => {
+        {chatUsers.map(e => {
             return <ListItem>
                 <div>
                     <p id={e.id} onClick={(e) => handleClickEvent(e.target.id)} style={{ cursor: 'pointer', width: '100%' }} >{e.userName}</p>

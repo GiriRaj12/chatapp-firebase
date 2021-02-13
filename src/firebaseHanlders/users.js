@@ -30,3 +30,4 @@ export function getUsers() {
     let db = getDB();
     return db.collection('user').get();
 }
+

@@ -1,16 +1,20 @@
 import React, { useEffect } from 'react';
 import firebase from 'firebase';
+import { useHistory } from 'react-router-dom';
+
 
 function LandingPage() {
+
+    let history = useHistory();
 
     useEffect(() => {
         firebase
             .auth().onAuthStateChanged(user => {
                 if (user) {
-                    window.location.replace('/Chat')
+                    history.push("/Chat");
                 }
                 else {
-                    window.location.replace('/Login')
+                    history.push("/Login");
                 }
             })
     });

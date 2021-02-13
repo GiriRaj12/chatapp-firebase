@@ -1,15 +1,18 @@
 import firebase from 'firebase';
+import { v4 } from 'uuid';
 
-export function saveInitiatedMessages(userId, initiatedUser) {
+export function saveInitiatedMessages(userId, initiatedUser, chatId) {
     console.log('Initiated User', initiatedUser);
+    console.log("TargetId", userId);
     firebase.firestore()
         .collection('messages')
         .doc(userId)
         .get()
         .then(function (doc) {
+            initiatedUser.chatId = chatId ? chatId : v4();
             if (doc.exists) {
+                console.log("Has doc for initiation")
                 let updatedObj = doc.data();
-                console.log('Doc exists', updatedObj);
                 let array = updatedObj.initiatedList;
                 let bol = true;
 
@@ -18,12 +21,16 @@ export function saveInitiatedMessages(userId, initiatedUser) {
                         bol = false;
                     }
                 }
+
                 updatedObj.initiatedList.push(initiatedUser);
+
                 if (bol) {
+                    console.log("Updating list");
                     updateInitiatedMessages(updatedObj, userId);
                 }
-            }
-            else {
+
+            } else {
+                console.log("Has no doc for initiation")
                 let obj = {
                     id: userId,
                     initiatedList: [initiatedUser]
@@ -85,35 +92,52 @@ export function getInitiatedMessages(userId) {
 }
 
 export function getChatRoomMessages(id) {
-    return firebase.firestore().collection('messages').doc(id);
+    return firebase.firestore().collection('chats').doc(id);
 }
 
-export function saveChatRoomMessage(obj, id) {
-    console.log(obj, id);
-    firebase.firestore().collection('messages').doc(id)
+export function saveChatRoomMessage(obj, currentUser, targetUser) {
+    console.log('CURRENT USER', currentUser);
+    console.log('CHAT OBJ', obj);
+    console.log('TARGET USER', targetUser);
+    getChatRoomMessages(targetUser.chatId)
         .get()
-        .then(function (doc) {
+        .then((doc) => {
             if (doc.exists) {
+                console.log("Has doc");
                 let messages = doc.data();
-                console.log(messages);
                 messages.messages.push(obj);
                 let messageArray = messages.messages;
-                firebase.firestore().collection('messages')
-                    .doc(id)
+                firebase.firestore().collection('chats')
+                    .doc(targetUser.chatId)
                     .update({
                         'messages': messageArray
                     })
                     .then((e) => console.log(e));
             }
             else {
+                console.log("No doc");
                 let messageObj = {
-                    userId: id,
+                    id: targetUser.chatId,
                     messages: [obj]
                 }
 
-                firebase.firestore().collection('messages')
-                    .doc(id)
-                    .set(messageObj);
+                console.log(messageObj);
+
+                getChatRoomMessages(targetUser.chatId)
+                    .set(messageObj)
+                    .then(e => {
+                        console.log('Done', e);
+                    })
             }
-        })
+        });
+
+    if (currentUser.uid !== targetUser.id) {
+        let user = {
+            email: currentUser.email,
+            id: currentUser.uid,
+            imageUrl: currentUser.photoURL,
+            userName: currentUser.displayName,
+        }
+        saveInitiatedMessages(targetUser.id, user, targetUser.chatId);
+    }
 }

@@ -3,9 +3,11 @@ import { Button, Card, CardContent, Typography } from '@material-ui/core';
 import firebase from 'firebase';
 import './styles/LoginPage.css';
 import { saveUser } from '../firebaseHanlders/users';
+import { useHistory } from 'react-router-dom';
 
 function LoginPage() {
     let auth = firebase.auth();
+    let history = useHistory();
 
     const googleSignIn = () => {
         const provider = new firebase.auth.GoogleAuthProvider();
@@ -23,10 +25,7 @@ function LoginPage() {
         firebase
             .auth().onAuthStateChanged(user => {
                 if (user) {
-                    window.location.replace('/Chat')
-                }
-                else {
-                    window.location.replace('/Login')
+                    history.push("/Chat");
                 }
             })
     }, [])

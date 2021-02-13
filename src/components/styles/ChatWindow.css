@@ -15,18 +15,30 @@
 }
 
 .users-list-view-container{
-    z-index: 1800;
     height: fit-content;
     overflow: scroll;
+    display: flex;
     position: absolute;
     padding: 10px;
+    top: 32%;
     background-color: white;
     width: 70%;
     margin-left: 20%;
     border-radius: 10px;
-    margin-top: 140%;
     overflow: scroll;
 }
+.search-user-item{
+    margin-left: 5%;
+    border-radius: 2%;
+    width: 80%;
+    margin-left: 5%;
+}
+
+.search-user-item:hover{
+    background-color: rgb(49, 224, 255);
+}
+
+
 .chat-items-list-container{
     height: 50%;
 }
